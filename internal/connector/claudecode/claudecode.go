@@ -82,7 +82,19 @@ func (Connector) DiscoverMCP(_ context.Context) ([]discovery.MCPServer, error) {
 }
 
 func (Connector) DiscoverSkills(_ context.Context) ([]discovery.SkillAsset, error) {
-	return nil, nil
+	skills := platform.DiscoverSkillFiles(skillRoots())
+	out := make([]discovery.SkillAsset, 0, len(skills))
+	for _, s := range skills {
+		out = append(out, discovery.SkillAsset{
+			Name:        s.Name,
+			ClientID:    id,
+			Client:      name,
+			Description: s.Description,
+			SourcePath:  s.Path,
+			Scope:       s.Scope,
+		})
+	}
+	return out, nil
 }
 
 // originForPath labels a config path as "user" (under the user's home
@@ -102,5 +114,14 @@ func configCandidates() []string {
 		filepath.Join(home, ".claude", "settings.json"),
 		filepath.Join(home, ".claude.json"),
 		filepath.Join(cwd, ".mcp.json"),
+	}
+}
+
+// skillRoots returns directories where Claude Code stores skills.
+// ~/.claude/skills/ is where installed skill packages live.
+func skillRoots() []string {
+	home := platform.HomeDir()
+	return []string{
+		filepath.Join(home, ".claude", "skills"),
 	}
 }

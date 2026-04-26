@@ -22,7 +22,10 @@ const { initialLoaded } = useAutoRefresh()
     <PageSkeleton v-if="!initialLoaded" variant="list" />
 
     <div v-else class="flex-1 overflow-y-auto p-6 space-y-4">
-      <Tabs :default-value="skillFilter" @update:model-value="(v: any) => skillFilter = v">
+      <Tabs
+        :model-value="skillFilter"
+        @update:model-value="(v) => { if (v === 'managed' || v === 'all' || v === 'system') skillFilter = v }"
+      >
         <TabsList>
           <TabsTrigger value="managed">{{ $t('skills.user') }}</TabsTrigger>
           <TabsTrigger value="system">{{ $t('skills.builtIn') }}</TabsTrigger>
