@@ -69,19 +69,29 @@ func builtinProbes() []AgentProbe {
 			},
 		},
 		{
-			ID:              "antigravity",
-			Name:            "Antigravity",
-			ExecutableNames: []string{"antigravity"},
-			AppBundlePaths:  []string{"/Applications/Antigravity.app"},
+			ID:              "gemini-cli",
+			Name:            "Gemini CLI",
+			ExecutableNames: []string{"gemini"},
+			AppBundlePaths:  nil,
 			ConfigPatterns: []string{
+				filepath.Join(home, ".gemini", "settings.json"),
 				filepath.Join(home, ".gemini", "antigravity", "mcp_config.json"),
-				filepath.Join(home, "Library", "Application Support", "Antigravity", "User", "settings.json"),
 				filepath.Join(cwd, ".mcp.json"),
 				filepath.Join(cwd, ".vscode", "mcp.json"),
 			},
 			SkillPatterns: []string{
 				filepath.Join(home, ".gemini", "antigravity", "skills"),
 			},
+		},
+		{
+			ID:              "antigravity",
+			Name:            "Antigravity",
+			ExecutableNames: []string{"antigravity"},
+			AppBundlePaths:  []string{"/Applications/Antigravity.app"},
+			ConfigPatterns: []string{
+				filepath.Join(home, "Library", "Application Support", "Antigravity", "User", "settings.json"),
+			},
+			SkillPatterns: nil, // extensions at ~/.antigravity/ are handled by the generic scanner
 		},
 	}
 }

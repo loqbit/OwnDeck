@@ -1,4 +1,12 @@
-package antigravity
+// Package geminicli discovers MCP servers and skills from a Gemini CLI
+// installation by reading its configuration files directly.
+//
+// Gemini CLI stores config under ~/.gemini/:
+//   - ~/.gemini/settings.json              — general settings
+//   - ~/.gemini/antigravity/mcp_config.json — MCP server declarations
+//   - ~/.gemini/antigravity/skills/         — skill files
+//   - <cwd>/.mcp.json                       — project-level MCP config
+package geminicli
 
 import (
 	"context"
@@ -12,8 +20,8 @@ import (
 )
 
 const (
-	id   = "antigravity"
-	name = "Antigravity"
+	id   = "gemini-cli"
+	name = "Gemini CLI"
 )
 
 type Connector struct {
@@ -34,9 +42,9 @@ func (Connector) ID() string   { return id }
 func (Connector) Name() string { return name }
 
 func (c *Connector) Probe() discovery.ClientInfo {
-	executable := platform.LookPath("antigravity")
+	executable := platform.LookPath("gemini")
 	configPaths := platform.ExistingPaths(c.configCandidates()...)
-	detected := executable != "" || len(configPaths) > 0 || platform.PathExists("/Applications/Antigravity.app")
+	detected := executable != "" || len(configPaths) > 0
 
 	return discovery.ClientInfo{
 		ID:          id,
@@ -51,7 +59,7 @@ func (c *Connector) Probe() discovery.ClientInfo {
 func (c *Connector) DiscoverMCP(_ context.Context) ([]discovery.MCPServer, error) {
 	paths := platform.ExistingPaths(c.configCandidates()...)
 	if len(paths) == 0 {
-		return nil, errors.New("no Antigravity MCP config files found")
+		return nil, errors.New("no Gemini CLI MCP config files found")
 	}
 
 	var servers []discovery.MCPServer
@@ -102,8 +110,8 @@ func (c *Connector) configCandidates() []string {
 	home := platform.HomeDir()
 	cwd, _ := os.Getwd()
 	return []string{
+		filepath.Join(home, ".gemini", "settings.json"),
 		filepath.Join(home, ".gemini", "antigravity", "mcp_config.json"),
-		filepath.Join(home, "Library", "Application Support", "Antigravity", "User", "settings.json"),
 		filepath.Join(cwd, ".mcp.json"),
 		filepath.Join(cwd, ".vscode", "mcp.json"),
 	}

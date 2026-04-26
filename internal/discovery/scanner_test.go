@@ -9,8 +9,8 @@ import (
 
 func TestScanAgents_ReturnsKnownAgents(t *testing.T) {
 	agents := ScanAgents()
-	if len(agents) < 4 {
-		t.Fatalf("expected at least 4 built-in agents, got %d", len(agents))
+	if len(agents) < 5 {
+		t.Fatalf("expected at least 5 built-in agents, got %d", len(agents))
 	}
 
 	// Verify all known IDs are present
@@ -18,7 +18,7 @@ func TestScanAgents_ReturnsKnownAgents(t *testing.T) {
 	for _, a := range agents {
 		ids[a.ID] = true
 	}
-	for _, expected := range []string{"claude-code", "claude-desktop", "codex", "antigravity"} {
+	for _, expected := range []string{"claude-code", "claude-desktop", "codex", "gemini-cli", "antigravity"} {
 		if !ids[expected] {
 			t.Errorf("missing expected agent: %s", expected)
 		}

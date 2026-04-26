@@ -49,7 +49,7 @@ func (s *Service) SkillsForClients(ctx context.Context, clientIDs []string) ([]d
 // Tools, ToolCount, HealthStatus, and IntrospectedAt fields filled.
 func (s *Service) IntrospectServer(ctx context.Context, server discovery.MCPServer) discovery.MCPServer {
 	if server.Transport != "stdio" || server.Command == "" {
-		server.HealthStatus = "error"
+		server.HealthStatus = mcpclient.HealthUnreachable
 		server.HealthMessage = "only stdio servers can be introspected"
 		server.IntrospectedAt = time.Now().UTC().Format(time.RFC3339)
 		return server
@@ -77,11 +77,7 @@ func (s *Service) IntrospectServer(ctx context.Context, server discovery.MCPServ
 	server.Tools = tools
 	server.ToolCount = len(tools)
 
-	if result.Health == "healthy" {
-		server.Status = "healthy"
-	} else {
-		server.Status = result.Health
-	}
+	server.Status = result.Health
 
 	return server
 }

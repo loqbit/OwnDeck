@@ -113,8 +113,8 @@ function toggleExpand(key: string) {
 function healthVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
   switch (status) {
     case 'healthy': return 'default'
-    case 'degraded': return 'secondary'
-    case 'error': return 'destructive'
+    case 'reachable': return 'secondary'
+    case 'unreachable': return 'destructive'
     default: return 'outline'
   }
 }
@@ -122,8 +122,8 @@ function healthVariant(status: string): 'default' | 'secondary' | 'destructive' 
 function healthIcon(status: string) {
   switch (status) {
     case 'healthy': return CircleCheck
-    case 'degraded': return CircleAlert
-    case 'error': return CircleX
+    case 'reachable': return CircleAlert
+    case 'unreachable': return CircleX
     default: return Circle
   }
 }
@@ -131,8 +131,8 @@ function healthIcon(status: string) {
 function healthLabel(status: string): string {
   switch (status) {
     case 'healthy': return 'mcpServers.healthHealthy'
-    case 'degraded': return 'mcpServers.healthDegraded'
-    case 'error': return 'mcpServers.healthError'
+    case 'reachable': return 'mcpServers.healthReachable'
+    case 'unreachable': return 'mcpServers.healthUnreachable'
     default: return 'mcpServers.healthUnknown'
   }
 }

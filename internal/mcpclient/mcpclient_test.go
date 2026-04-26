@@ -14,8 +14,8 @@ func TestIntrospect_CommandNotFound(t *testing.T) {
 		nil, nil, "",
 	)
 
-	if result.Health != "error" {
-		t.Errorf("health = %q, want %q", result.Health, "error")
+	if result.Health != HealthUnreachable {
+		t.Errorf("health = %q, want %q", result.Health, HealthUnreachable)
 	}
 	if result.Error == "" {
 		t.Error("expected non-empty error message")
@@ -36,8 +36,8 @@ func TestIntrospect_ContextCanceled(t *testing.T) {
 		[]string{"hello"}, nil, "",
 	)
 
-	if result.Health != "error" {
-		t.Errorf("health = %q, want %q", result.Health, "error")
+	if result.Health != HealthUnreachable {
+		t.Errorf("health = %q, want %q", result.Health, HealthUnreachable)
 	}
 }
 

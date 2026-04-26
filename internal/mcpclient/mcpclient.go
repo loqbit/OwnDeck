@@ -10,15 +10,31 @@ package mcpclient
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"time"
 
+	"github.com/modelcontextprotocol/go-sdk/jsonrpc"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 const DefaultTimeout = 10 * time.Second
+
+// Health classifications for an introspection attempt.
+//
+// Distinction matters because OwnDeck inspects servers without ever
+// calling tools — a server that responds with a JSON-RPC error has
+// proven its protocol layer works, even if it refuses our request
+// (e.g. the host app holds the OS permissions needed to actually
+// run a tool). Only true silence (timeout, crash, no protocol
+// response) means the server is broken from OwnDeck's perspective.
+const (
+	HealthHealthy     = "healthy"     // initialize OK + tools/list OK
+	HealthReachable   = "reachable"   // server spoke MCP but returned an error
+	HealthUnreachable = "unreachable" // process never responded / timed out / crashed
+)
 
 // ToolInfo mirrors discovery.ToolInfo but lives here to avoid an
 // import cycle. The caller maps these to discovery types.
@@ -34,9 +50,25 @@ type IntrospectResult struct {
 	Tools         []ToolInfo
 	ServerName    string
 	ServerVersion string
-	Health        string // "healthy" | "degraded" | "error"
+	Health        string // one of HealthHealthy / HealthReachable / HealthUnreachable
 	Error         string
 	Duration      time.Duration
+}
+
+// classify maps an error from Connect or ListTools into a health
+// bucket. A JSON-RPC error means the server responded with a valid
+// protocol message — it is alive ("reachable"). Timeout, context
+// cancel, or any other transport-layer failure means we never heard
+// back ("unreachable").
+func classify(err error) (health, msg string) {
+	var rpcErr *jsonrpc.Error
+	if errors.As(err, &rpcErr) {
+		return HealthReachable, err.Error()
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return HealthUnreachable, "timeout: " + err.Error()
+	}
+	return HealthUnreachable, err.Error()
 }
 
 // Introspect starts an MCP server as a subprocess, performs the
@@ -79,9 +111,10 @@ func doIntrospect(ctx context.Context, command string, args []string, env map[st
 	// Connect — this performs initialize + notifications/initialized.
 	session, err := client.Connect(ctx, transport, nil)
 	if err != nil {
+		health, msg := classify(err)
 		return IntrospectResult{
-			Health: "error",
-			Error:  fmt.Sprintf("connect: %v", err),
+			Health: health,
+			Error:  fmt.Sprintf("connect: %s", msg),
 		}
 	}
 	defer session.Close()
@@ -89,9 +122,13 @@ func doIntrospect(ctx context.Context, command string, args []string, env map[st
 	// List tools.
 	toolsResult, err := session.ListTools(ctx, nil)
 	if err != nil {
+		// Init succeeded so the server is at minimum reachable;
+		// classify() may still return unreachable if the stream
+		// died mid-session (timeout / transport break).
+		health, msg := classify(err)
 		return IntrospectResult{
-			Health: "degraded",
-			Error:  fmt.Sprintf("tools/list: %v", err),
+			Health: health,
+			Error:  fmt.Sprintf("tools/list: %s", msg),
 		}
 	}
 
@@ -106,7 +143,7 @@ func doIntrospect(ctx context.Context, command string, args []string, env map[st
 
 	return IntrospectResult{
 		Tools:  tools,
-		Health: "healthy",
+		Health: HealthHealthy,
 	}
 }
 

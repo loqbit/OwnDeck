@@ -10,10 +10,10 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 
 	"OwnDeck/internal/connector"
-	"OwnDeck/internal/connector/antigravity"
 	"OwnDeck/internal/connector/claudecode"
 	"OwnDeck/internal/connector/claudedesktop"
 	"OwnDeck/internal/connector/codex"
+	"OwnDeck/internal/connector/geminicli"
 	"OwnDeck/internal/connector/generic"
 	"OwnDeck/internal/discovery"
 	"OwnDeck/internal/repository/config"
@@ -88,7 +88,7 @@ var specializedConnectors = map[string]func(config.AgentConfig) connector.Connec
 	"codex":          func(ac config.AgentConfig) connector.Connector { return codex.NewWithConfig(ac) },
 	"claude-code":    func(ac config.AgentConfig) connector.Connector { return claudecode.NewWithConfig(ac) },
 	"claude-desktop": func(ac config.AgentConfig) connector.Connector { return claudedesktop.NewWithConfig(ac) },
-	"antigravity":    func(ac config.AgentConfig) connector.Connector { return antigravity.NewWithConfig(ac) },
+	"gemini-cli":     func(ac config.AgentConfig) connector.Connector { return geminicli.NewWithConfig(ac) },
 }
 
 // buildConnectors creates a connector for every discovered agent.
