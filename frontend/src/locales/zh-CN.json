@@ -24,7 +24,9 @@
     "searchServers": "搜索服务器...",
     "toggleTheme": "切换主题",
     "inspect": "探查",
-    "inspecting": "探查中..."
+    "inspecting": "探查中...",
+    "rescan": "重新扫描",
+    "rescanning": "扫描中..."
   },
   "overview": {
     "title": "概览",

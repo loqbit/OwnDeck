@@ -83,7 +83,7 @@ func buildApp() (*App, error) {
 	discoverySvc := discoverysvc.New(registry)
 	connectionSvc := connectionsvc.New(store)
 
-	return NewApp(discoverySvc, connectionSvc), nil
+	return NewApp(discoverySvc, connectionSvc, store), nil
 }
 
 // makeConnector creates a connector using the scanned AgentConfig if

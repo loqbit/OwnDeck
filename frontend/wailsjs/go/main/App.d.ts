@@ -22,3 +22,5 @@ export function GetConfig():Promise<config.AppConfig>;
 export function GetConnectedClientIDs():Promise<Array<string>>;
 
 export function IntrospectMCPServer(arg1:discovery.MCPServer):Promise<discovery.MCPServer>;
+
+export function RescanAgents():Promise<Array<config.AgentConfig>>;

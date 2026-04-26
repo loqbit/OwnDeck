@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ref } from 'vue'
 import PageHeader from '@/components/app/PageHeader.vue'
 import PageSkeleton from '@/components/app/PageSkeleton.vue'
 import { Button } from '@/components/ui/button'
@@ -10,12 +11,16 @@ import {
   Sparkles,
   Bot,
   AlertTriangle,
+  Radar,
+  Loader2,
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useClients } from '@/composables/useClients'
 import { useMCPServers } from '@/composables/useMCPServers'
 import { useSkills } from '@/composables/useSkills'
 import { useAutoRefresh } from '@/composables/useAutoRefresh'
+import { RescanAgents } from '../../wailsjs/go/main/App'
+import { toast } from 'vue-sonner'
 
 const { t } = useI18n()
 const { connectedCount } = useClients()
@@ -31,11 +36,35 @@ const metrics = [
   { key: 'overview.skillsDiscovered', icon: Sparkles, getValue: () => skills.value.length },
   { key: 'overview.agents', icon: Bot, getValue: () => agentCount },
 ]
+
+const isScanning = ref(false)
+
+async function handleRescan() {
+  isScanning.value = true
+  try {
+    const agents = await RescanAgents()
+    toast.success(t('actions.rescan'), {
+      description: `${agents.length} agents found`,
+    })
+  } catch (err) {
+    toast.error('Rescan failed', { description: String(err) })
+  } finally {
+    isScanning.value = false
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-col flex-1 min-h-0">
-    <PageHeader :title="$t('overview.title')" :description="$t('overview.description')" />
+    <PageHeader :title="$t('overview.title')" :description="$t('overview.description')">
+      <template #actions>
+        <Button variant="outline" size="sm" :disabled="isScanning" @click="handleRescan">
+          <Radar v-if="!isScanning" class="mr-1.5 size-4" />
+          <Loader2 v-else class="mr-1.5 size-4 animate-spin" />
+          {{ isScanning ? $t('actions.rescanning') : $t('actions.rescan') }}
+        </Button>
+      </template>
+    </PageHeader>
 
     <PageSkeleton v-if="!initialLoaded" variant="cards" />
 

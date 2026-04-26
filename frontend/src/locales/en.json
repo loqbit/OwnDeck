@@ -24,7 +24,9 @@
     "searchServers": "Search servers...",
     "toggleTheme": "Toggle theme",
     "inspect": "Inspect",
-    "inspecting": "Inspecting..."
+    "inspecting": "Inspecting...",
+    "rescan": "Rescan Agents",
+    "rescanning": "Scanning..."
   },
   "overview": {
     "title": "Overview",

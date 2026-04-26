@@ -41,3 +41,7 @@ export function GetConnectedClientIDs() {
 export function IntrospectMCPServer(arg1) {
   return window['go']['main']['App']['IntrospectMCPServer'](arg1);
 }
+
+export function RescanAgents() {
+  return window['go']['main']['App']['RescanAgents']();
+}

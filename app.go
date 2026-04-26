@@ -15,12 +15,14 @@ type App struct {
 	ctx           context.Context
 	discoverySvc  *discoverysvc.Service
 	connectionSvc *connectionsvc.Service
+	store         config.Store
 }
 
-func NewApp(discoverySvc *discoverysvc.Service, connectionSvc *connectionsvc.Service) *App {
+func NewApp(discoverySvc *discoverysvc.Service, connectionSvc *connectionsvc.Service, store config.Store) *App {
 	return &App{
 		discoverySvc:  discoverySvc,
 		connectionSvc: connectionSvc,
+		store:         store,
 	}
 }
 
@@ -66,4 +68,20 @@ func (a *App) ConfigPath() string {
 
 func (a *App) IntrospectMCPServer(server discovery.MCPServer) discovery.MCPServer {
 	return a.discoverySvc.IntrospectServer(a.ctx, server)
+}
+
+// RescanAgents re-runs the agent filesystem scanner, updates the
+// persisted config, and returns the fresh agent list.
+func (a *App) RescanAgents() ([]config.AgentConfig, error) {
+	agents := discovery.ScanAgents()
+
+	cfg, err := a.store.Load()
+	if err != nil {
+		return agents, err
+	}
+	cfg.Agents = agents
+	if err := a.store.Save(cfg); err != nil {
+		return agents, err
+	}
+	return agents, nil
 }
