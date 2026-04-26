@@ -88,12 +88,32 @@ func builtinProbes() []AgentProbe {
 			Name:            "Antigravity",
 			ExecutableNames: []string{"antigravity"},
 			AppBundlePaths:  []string{"/Applications/Antigravity.app"},
-			ConfigPatterns: []string{
-				filepath.Join(home, "Library", "Application Support", "Antigravity", "User", "settings.json"),
-			},
-			SkillPatterns: nil, // extensions at ~/.antigravity/ are handled by the generic scanner
+			ConfigPatterns:  antigravityConfigPatterns(home),
+			SkillPatterns:   nil,
 		},
 	}
+}
+
+func antigravityConfigPatterns(home string) []string {
+	paths := []string{
+		filepath.Join(home, "Library", "Application Support", "Antigravity", "User", "settings.json"),
+	}
+
+	// Antigravity extensions may bundle their own .mcp.json files.
+	// By explicitly listing them in ConfigPatterns, we ensure they belong to
+	// the "Antigravity" agent rather than showing up as "Unknown" agents.
+	extDir := filepath.Join(home, ".antigravity", "extensions")
+	if entries, err := os.ReadDir(extDir); err == nil {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				mcpPath := filepath.Join(extDir, entry.Name(), ".mcp.json")
+				if platform.PathExists(mcpPath) {
+					paths = append(paths, mcpPath)
+				}
+			}
+		}
+	}
+	return paths
 }
 
 // ScanAgents probes the local filesystem for known AI agents and

@@ -4,6 +4,7 @@ import PageHeader from '@/components/app/PageHeader.vue'
 import PageSkeleton from '@/components/app/PageSkeleton.vue'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Input } from '@/components/ui/input'
 import {
   Table,
@@ -223,12 +224,25 @@ function healthLabel(status: string): string {
                       <Loader2 class="size-3.5 animate-spin" />
                       <span>{{ $t('actions.inspecting') }}</span>
                     </div>
-                    <!-- Result: show health badge -->
+                    <!-- Result: show health badge (with tooltip when there's a message) -->
+                    <Tooltip v-else-if="server.healthMessage">
+                      <TooltipTrigger as-child>
+                        <Badge
+                          :variant="healthVariant(server.healthStatus)"
+                          class="text-xs gap-1 transition-all duration-300 cursor-help"
+                        >
+                          <component :is="healthIcon(server.healthStatus)" class="size-3" />
+                          {{ $t(healthLabel(server.healthStatus)) }}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent class="max-w-md">
+                        <p class="text-xs whitespace-pre-wrap wrap-break-word">{{ server.healthMessage }}</p>
+                      </TooltipContent>
+                    </Tooltip>
                     <Badge
                       v-else
                       :variant="healthVariant(server.healthStatus)"
                       class="text-xs gap-1 transition-all duration-300"
-                      :title="server.healthMessage || ''"
                     >
                       <component :is="healthIcon(server.healthStatus)" class="size-3" />
                       {{ $t(healthLabel(server.healthStatus)) }}
