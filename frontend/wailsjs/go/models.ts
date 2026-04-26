@@ -1,5 +1,29 @@
 export namespace config {
 	
+	export class AgentConfig {
+	    id: string;
+	    name: string;
+	    executable?: string;
+	    configPaths: string[];
+	    skillRoots: string[];
+	    detected: boolean;
+	    scannedAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new AgentConfig(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.executable = source["executable"];
+	        this.configPaths = source["configPaths"];
+	        this.skillRoots = source["skillRoots"];
+	        this.detected = source["detected"];
+	        this.scannedAt = source["scannedAt"];
+	    }
+	}
 	export class ClientConnection {
 	    connected: boolean;
 	    permission: string;
@@ -19,6 +43,7 @@ export namespace config {
 	export class AppConfig {
 	    version: number;
 	    clients: Record<string, ClientConnection>;
+	    agents?: AgentConfig[];
 	
 	    static createFrom(source: any = {}) {
 	        return new AppConfig(source);
@@ -28,6 +53,7 @@ export namespace config {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.version = source["version"];
 	        this.clients = this.convertValues(source["clients"], ClientConnection, true);
+	        this.agents = this.convertValues(source["agents"], AgentConfig);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

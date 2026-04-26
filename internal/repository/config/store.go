@@ -13,9 +13,23 @@ type ClientConnection struct {
 	ConnectedAt string `json:"connectedAt,omitempty"`
 }
 
+// AgentConfig stores discovered paths for an AI agent.
+// Populated by the first-use scan and persisted so future
+// startups skip the filesystem crawl.
+type AgentConfig struct {
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Executable  string   `json:"executable,omitempty"`
+	ConfigPaths []string `json:"configPaths"`
+	SkillRoots  []string `json:"skillRoots"`
+	Detected    bool     `json:"detected"`
+	ScannedAt   string   `json:"scannedAt"`
+}
+
 type AppConfig struct {
 	Version int                         `json:"version"`
 	Clients map[string]ClientConnection `json:"clients"`
+	Agents  []AgentConfig               `json:"agents,omitempty"`
 }
 
 type Store interface {
@@ -32,6 +46,16 @@ func ConnectedClientIDs(cfg AppConfig) []string {
 		}
 	}
 	return ids
+}
+
+// FindAgent returns the AgentConfig for the given agent ID, if present.
+func FindAgent(cfg AppConfig, agentID string) (AgentConfig, bool) {
+	for _, a := range cfg.Agents {
+		if a.ID == agentID {
+			return a, true
+		}
+	}
+	return AgentConfig{}, false
 }
 
 func defaultConfig() AppConfig {

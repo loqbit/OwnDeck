@@ -25,6 +25,7 @@ import (
 
 	"OwnDeck/internal/discovery"
 	"OwnDeck/internal/platform"
+	"OwnDeck/internal/repository/config"
 )
 
 const (
@@ -32,15 +33,25 @@ const (
 	name = "Codex"
 )
 
-type Connector struct{}
+type Connector struct {
+	cfgPaths  []string
+	cfgSkills []string
+}
 
 func New() *Connector { return &Connector{} }
+
+func NewWithConfig(ac config.AgentConfig) *Connector {
+	return &Connector{
+		cfgPaths:  ac.ConfigPaths,
+		cfgSkills: ac.SkillRoots,
+	}
+}
 
 func (Connector) ID() string   { return id }
 func (Connector) Name() string { return name }
 
-func (c Connector) Probe() discovery.ClientInfo {
-	configPaths := platform.ExistingPaths(configPath())
+func (c *Connector) Probe() discovery.ClientInfo {
+	configPaths := platform.ExistingPaths(c.configPath())
 	detected := len(configPaths) > 0 || platform.PathExists(codexHome())
 	return discovery.ClientInfo{
 		ID:          id,
@@ -54,19 +65,19 @@ func (c Connector) Probe() discovery.ClientInfo {
 // DiscoverMCP reads config.toml plus every enabled plugin's bundled
 // .mcp.json. Errors from individual plugins are swallowed so one
 // broken plugin doesn't block discovery of the rest.
-func (Connector) DiscoverMCP(_ context.Context) ([]discovery.MCPServer, error) {
-	cfg, err := loadConfig(configPath())
+func (c *Connector) DiscoverMCP(_ context.Context) ([]discovery.MCPServer, error) {
+	cfg, err := loadConfig(c.configPath())
 	if err != nil {
 		return nil, err
 	}
 
-	servers := userServers(cfg, configPath())
+	servers := userServers(cfg, c.configPath())
 	servers = append(servers, pluginServers(cfg)...)
 	return servers, nil
 }
 
-func (Connector) DiscoverSkills(_ context.Context) ([]discovery.SkillAsset, error) {
-	skills := platform.DiscoverSkillFiles(skillRoots())
+func (c *Connector) DiscoverSkills(_ context.Context) ([]discovery.SkillAsset, error) {
+	skills := platform.DiscoverSkillFiles(c.skillRoots())
 	out := make([]discovery.SkillAsset, 0, len(skills))
 	for _, s := range skills {
 		out = append(out, discovery.SkillAsset{
@@ -255,7 +266,10 @@ func readPluginMCP(pluginID string, pluginDir string) []discovery.MCPServer {
 	return out
 }
 
-func configPath() string {
+func (c *Connector) configPath() string {
+	if len(c.cfgPaths) > 0 {
+		return c.cfgPaths[0]
+	}
 	return filepath.Join(codexHome(), "config.toml")
 }
 
@@ -267,7 +281,10 @@ func codexHome() string {
 	return filepath.Join(home, ".codex")
 }
 
-func skillRoots() []string {
+func (c *Connector) skillRoots() []string {
+	if len(c.cfgSkills) > 0 {
+		return c.cfgSkills
+	}
 	return []string{
 		filepath.Join(codexHome(), "skills"),
 		filepath.Join(codexHome(), "plugins", "cache"),

@@ -8,6 +8,7 @@ import (
 
 	"OwnDeck/internal/discovery"
 	"OwnDeck/internal/platform"
+	"OwnDeck/internal/repository/config"
 )
 
 const (
@@ -15,16 +16,26 @@ const (
 	name = "Antigravity"
 )
 
-type Connector struct{}
+type Connector struct {
+	cfgPaths  []string
+	cfgSkills []string
+}
 
 func New() *Connector { return &Connector{} }
+
+func NewWithConfig(ac config.AgentConfig) *Connector {
+	return &Connector{
+		cfgPaths:  ac.ConfigPaths,
+		cfgSkills: ac.SkillRoots,
+	}
+}
 
 func (Connector) ID() string   { return id }
 func (Connector) Name() string { return name }
 
-func (Connector) Probe() discovery.ClientInfo {
+func (c *Connector) Probe() discovery.ClientInfo {
 	executable := platform.LookPath("antigravity")
-	configPaths := platform.ExistingPaths(configCandidates()...)
+	configPaths := platform.ExistingPaths(c.configCandidates()...)
 	detected := executable != "" || len(configPaths) > 0 || platform.PathExists("/Applications/Antigravity.app")
 
 	return discovery.ClientInfo{
@@ -37,8 +48,8 @@ func (Connector) Probe() discovery.ClientInfo {
 	}
 }
 
-func (Connector) DiscoverMCP(_ context.Context) ([]discovery.MCPServer, error) {
-	paths := platform.ExistingPaths(configCandidates()...)
+func (c *Connector) DiscoverMCP(_ context.Context) ([]discovery.MCPServer, error) {
+	paths := platform.ExistingPaths(c.configCandidates()...)
 	if len(paths) == 0 {
 		return nil, errors.New("no Antigravity MCP config files found")
 	}
@@ -68,8 +79,8 @@ func (Connector) DiscoverMCP(_ context.Context) ([]discovery.MCPServer, error) {
 	return servers, nil
 }
 
-func (Connector) DiscoverSkills(_ context.Context) ([]discovery.SkillAsset, error) {
-	skills := platform.DiscoverSkillFiles(skillRoots())
+func (c *Connector) DiscoverSkills(_ context.Context) ([]discovery.SkillAsset, error) {
+	skills := platform.DiscoverSkillFiles(c.skillRoots())
 	out := make([]discovery.SkillAsset, 0, len(skills))
 	for _, s := range skills {
 		out = append(out, discovery.SkillAsset{
@@ -84,7 +95,10 @@ func (Connector) DiscoverSkills(_ context.Context) ([]discovery.SkillAsset, erro
 	return out, nil
 }
 
-func configCandidates() []string {
+func (c *Connector) configCandidates() []string {
+	if len(c.cfgPaths) > 0 {
+		return c.cfgPaths
+	}
 	home := platform.HomeDir()
 	cwd, _ := os.Getwd()
 	return []string{
@@ -95,7 +109,10 @@ func configCandidates() []string {
 	}
 }
 
-func skillRoots() []string {
+func (c *Connector) skillRoots() []string {
+	if len(c.cfgSkills) > 0 {
+		return c.cfgSkills
+	}
 	return []string{
 		filepath.Join(platform.HomeDir(), ".gemini", "antigravity", "skills"),
 	}
