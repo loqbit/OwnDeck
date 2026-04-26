@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import PageHeader from '@/components/app/PageHeader.vue'
+import PageSkeleton from '@/components/app/PageSkeleton.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { RefreshCw } from 'lucide-vue-next'
+
 import { useClients } from '@/composables/useClients'
 import { useMCPServers } from '@/composables/useMCPServers'
 import { useSkills } from '@/composables/useSkills'
@@ -21,8 +22,7 @@ const {
 } = useClients()
 const { refreshServers } = useMCPServers()
 const { refreshSkills } = useSkills()
-const { manualRefresh } = useAutoRefresh()
-const { isLoading } = useMCPServers()
+const { initialLoaded } = useAutoRefresh()
 
 async function handleConnect(clientID: string) {
   try {
@@ -47,16 +47,11 @@ async function handleDisconnect(clientID: string) {
 
 <template>
   <div class="flex flex-col flex-1 min-h-0">
-    <PageHeader :title="$t('clients.title')" :description="$t('clients.description')">
-      <template #actions>
-        <Button variant="outline" size="sm" :disabled="isLoading" @click="manualRefresh">
-          <RefreshCw class="mr-2 size-4" :class="{ 'animate-spin': isLoading }" />
-          {{ $t('actions.refresh') }}
-        </Button>
-      </template>
-    </PageHeader>
+    <PageHeader :title="$t('clients.title')" :description="$t('clients.description')" />
 
-    <div class="flex-1 overflow-y-auto p-6">
+    <PageSkeleton v-if="!initialLoaded" variant="cards" />
+
+    <div v-else class="flex-1 overflow-y-auto p-6">
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card v-for="client in clients" :key="client.id" class="flex flex-col">
           <CardHeader class="flex flex-row items-start justify-between space-y-0">

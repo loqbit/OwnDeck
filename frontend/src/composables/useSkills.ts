@@ -23,10 +23,22 @@ async function refreshSkills() {
   const { connectedClientIDs } = useClients()
 
   if (connectedClientIDs.value.length === 0) {
-    skills.value = []
+    if (skills.value.length > 0) skills.value.splice(0)
     return
   }
-  skills.value = (await DiscoverSkillsForClients(connectedClientIDs.value)) ?? []
+  const fresh = (await DiscoverSkillsForClients(connectedClientIDs.value)) ?? []
+  // Only replace when content actually changed to avoid re-render flicker
+  if (!skillsEqual(skills.value, fresh)) {
+    skills.value = fresh
+  }
+}
+
+function skillsEqual(a: discovery.SkillAsset[], b: discovery.SkillAsset[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].name !== b[i].name || a[i].clientID !== b[i].clientID || a[i].sourcePath !== b[i].sourcePath) return false
+  }
+  return true
 }
 
 export function useSkills() {

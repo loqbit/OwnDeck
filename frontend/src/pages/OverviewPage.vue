@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import PageHeader from '@/components/app/PageHeader.vue'
+import PageSkeleton from '@/components/app/PageSkeleton.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,7 +9,6 @@ import {
   Server,
   Sparkles,
   Bot,
-  RefreshCw,
   AlertTriangle,
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
@@ -19,9 +19,9 @@ import { useAutoRefresh } from '@/composables/useAutoRefresh'
 
 const { t } = useI18n()
 const { connectedCount } = useClients()
-const { servers, isLoading } = useMCPServers()
+const { servers } = useMCPServers()
 const { skills } = useSkills()
-const { manualRefresh } = useAutoRefresh()
+const { initialLoaded } = useAutoRefresh()
 
 const agentCount = 0
 
@@ -35,16 +35,11 @@ const metrics = [
 
 <template>
   <div class="flex flex-col flex-1 min-h-0">
-    <PageHeader :title="$t('overview.title')" :description="$t('overview.description')">
-      <template #actions>
-        <Button variant="outline" size="sm" :disabled="isLoading" @click="manualRefresh">
-          <RefreshCw class="mr-2 size-4" :class="{ 'animate-spin': isLoading }" />
-          {{ isLoading ? $t('actions.scanning') : $t('actions.refresh') }}
-        </Button>
-      </template>
-    </PageHeader>
+    <PageHeader :title="$t('overview.title')" :description="$t('overview.description')" />
 
-    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+    <PageSkeleton v-if="!initialLoaded" variant="cards" />
+
+    <div v-else class="flex-1 overflow-y-auto p-6 space-y-6">
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card v-for="metric in metrics" :key="metric.key">
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">

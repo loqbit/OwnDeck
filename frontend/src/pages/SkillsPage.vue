@@ -1,31 +1,27 @@
 <script lang="ts" setup>
 import PageHeader from '@/components/app/PageHeader.vue'
+import PageSkeleton from '@/components/app/PageSkeleton.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { RefreshCw } from 'lucide-vue-next'
+
 import { useClients } from '@/composables/useClients'
 import { useSkills } from '@/composables/useSkills'
 import { useAutoRefresh } from '@/composables/useAutoRefresh'
 
 const { connectedCount } = useClients()
 const { skillFilter, visibleSkills, hasVisibleSkills, skills } = useSkills()
-const { manualRefresh } = useAutoRefresh()
+const { initialLoaded } = useAutoRefresh()
 </script>
 
 <template>
   <div class="flex flex-col flex-1 min-h-0">
-    <PageHeader :title="$t('skills.title')" :description="$t('skills.description')">
-      <template #actions>
-        <Button variant="outline" size="sm" @click="manualRefresh">
-          <RefreshCw class="mr-2 size-4" />
-          {{ $t('actions.refresh') }}
-        </Button>
-      </template>
-    </PageHeader>
+    <PageHeader :title="$t('skills.title')" :description="$t('skills.description')" />
 
-    <div class="flex-1 overflow-y-auto p-6 space-y-4">
+    <PageSkeleton v-if="!initialLoaded" variant="list" />
+
+    <div v-else class="flex-1 overflow-y-auto p-6 space-y-4">
       <Tabs :default-value="skillFilter" @update:model-value="(v: any) => skillFilter = v">
         <TabsList>
           <TabsTrigger value="managed">{{ $t('skills.user') }}</TabsTrigger>

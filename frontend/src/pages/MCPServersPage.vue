@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, reactive } from 'vue'
 import PageHeader from '@/components/app/PageHeader.vue'
+import PageSkeleton from '@/components/app/PageSkeleton.vue'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -13,18 +14,20 @@ import {
   TableRow,
   TableEmpty,
 } from '@/components/ui/table'
-import { RefreshCw, Search, Scan, ChevronDown, ChevronRight, CircleCheck, CircleAlert, CircleX, Circle } from 'lucide-vue-next'
+import { Search, Scan, ChevronDown, ChevronRight, CircleCheck, CircleAlert, CircleX, Circle, Loader2 } from 'lucide-vue-next'
 import { useClients } from '@/composables/useClients'
 import { useMCPServers } from '@/composables/useMCPServers'
 import { useAutoRefresh } from '@/composables/useAutoRefresh'
 import { IntrospectMCPServer } from '../../wailsjs/go/main/App'
 
 const { connectedCount } = useClients()
-const { servers, isLoading } = useMCPServers()
+const { servers, updateServer, activeInspections } = useMCPServers()
 
 const searchQuery = ref('')
 const inspecting = reactive<Record<string, boolean>>({})
 const expandedRows = reactive<Record<string, boolean>>({})
+const isInspectingAll = ref(false)
+const inspectProgress = ref({ done: 0, total: 0 })
 
 const filteredServers = computed(() => {
   if (!searchQuery.value) return servers.value
@@ -38,25 +41,28 @@ const filteredServers = computed(() => {
   )
 })
 
-const { manualRefresh } = useAutoRefresh()
+// Servers that can be introspected (stdio with a command)
+const inspectableServers = computed(() =>
+  servers.value.filter(s => s.transport === 'stdio' && s.command)
+)
+
+const { initialLoaded } = useAutoRefresh()
 
 function serverKey(s: any): string {
   return `${s.client}-${s.name}-${s.sourcePath}`
 }
 
-async function handleInspect(server: any, idx: number) {
+const MAX_CONCURRENCY = 10
+
+/**
+ * Inspect a single server. Updates the row in-place when done.
+ */
+async function inspectOne(server: any) {
   const key = serverKey(server)
   inspecting[key] = true
   try {
     const result = await IntrospectMCPServer(server)
-    // Update the server in-place in the reactive array
-    const serverIdx = servers.value.findIndex(
-      (s: any) => s.name === server.name && s.client === server.client && s.sourcePath === server.sourcePath
-    )
-    if (serverIdx >= 0) {
-      servers.value[serverIdx] = result
-    }
-    // Auto-expand if tools found
+    updateServer(result)
     if (result.toolCount > 0) {
       expandedRows[key] = true
     }
@@ -64,7 +70,40 @@ async function handleInspect(server: any, idx: number) {
     console.error('Introspect failed:', err)
   } finally {
     inspecting[key] = false
+    inspectProgress.value.done++
   }
+}
+
+/**
+ * Batch-inspect all stdio servers with concurrency limit.
+ * Like Clash Verge's connectivity test: one button, all servers,
+ * results stream in as each completes.
+ */
+async function handleInspectAll() {
+  const targets = inspectableServers.value
+  if (targets.length === 0) return
+
+  isInspectingAll.value = true
+  activeInspections.value++
+  inspectProgress.value = { done: 0, total: targets.length }
+
+  // Semaphore-based concurrency limiter
+  const queue = [...targets]
+  const workers: Promise<void>[] = []
+
+  for (let i = 0; i < Math.min(MAX_CONCURRENCY, queue.length); i++) {
+    workers.push((async () => {
+      while (queue.length > 0) {
+        const server = queue.shift()!
+        await inspectOne(server)
+      }
+    })())
+  }
+
+  await Promise.all(workers)
+
+  isInspectingAll.value = false
+  activeInspections.value--
 }
 
 function toggleExpand(key: string) {
@@ -111,14 +150,27 @@ function healthLabel(status: string): string {
             class="pl-8 w-[200px] h-9"
           />
         </div>
-        <Button variant="outline" size="sm" :disabled="isLoading" @click="manualRefresh">
-          <RefreshCw class="mr-2 size-4" :class="{ 'animate-spin': isLoading }" />
-          {{ $t('actions.refresh') }}
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="isInspectingAll || inspectableServers.length === 0"
+          @click="handleInspectAll"
+        >
+          <Scan v-if="!isInspectingAll" class="mr-1.5 size-4" />
+          <Loader2 v-else class="mr-1.5 size-4 animate-spin" />
+          <template v-if="isInspectingAll">
+            {{ inspectProgress.done }}/{{ inspectProgress.total }}
+          </template>
+          <template v-else>
+            {{ $t('actions.inspect') }}
+          </template>
         </Button>
       </template>
     </PageHeader>
 
-    <div class="flex-1 overflow-y-auto p-6">
+    <PageSkeleton v-if="!initialLoaded" variant="table" />
+
+    <div v-else class="flex-1 overflow-y-auto p-6">
       <div class="rounded-lg border overflow-x-hidden">
         <Table class="table-fixed">
           <TableHeader>
@@ -127,9 +179,8 @@ function healthLabel(status: string): string {
               <TableHead>{{ $t('mcpServers.name') }}</TableHead>
               <TableHead class="w-[100px]">{{ $t('mcpServers.transport') }}</TableHead>
               <TableHead>{{ $t('mcpServers.commandUrl') }}</TableHead>
-              <TableHead class="w-[100px]">{{ $t('mcpServers.health') }}</TableHead>
+              <TableHead class="w-[120px]">{{ $t('mcpServers.health') }}</TableHead>
               <TableHead class="w-[100px]">{{ $t('mcpServers.tools') }}</TableHead>
-              <TableHead class="w-[90px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -167,9 +218,16 @@ function healthLabel(status: string): string {
                     </code>
                   </TableCell>
                   <TableCell>
+                    <!-- Inspecting: show spinner -->
+                    <div v-if="inspecting[serverKey(server)]" class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Loader2 class="size-3.5 animate-spin" />
+                      <span>{{ $t('actions.inspecting') }}</span>
+                    </div>
+                    <!-- Result: show health badge -->
                     <Badge
+                      v-else
                       :variant="healthVariant(server.healthStatus)"
-                      class="text-xs gap-1"
+                      class="text-xs gap-1 transition-all duration-300"
                       :title="server.healthMessage || ''"
                     >
                       <component :is="healthIcon(server.healthStatus)" class="size-3" />
@@ -177,26 +235,14 @@ function healthLabel(status: string): string {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <span v-if="server.toolCount > 0" class="text-xs font-medium">
+                    <span v-if="inspecting[serverKey(server)]" class="text-xs text-muted-foreground">...</span>
+                    <span v-else-if="server.toolCount > 0" class="text-xs font-medium">
                       {{ $t('mcpServers.toolsCount', { count: server.toolCount }) }}
                     </span>
                     <span v-else-if="server.healthStatus === 'healthy'" class="text-xs text-muted-foreground">
                       {{ $t('mcpServers.noTools') }}
                     </span>
                     <span v-else class="text-xs text-muted-foreground">—</span>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      v-if="server.transport === 'stdio' && server.command"
-                      variant="ghost"
-                      size="sm"
-                      class="h-7 px-2 text-xs"
-                      :disabled="inspecting[serverKey(server)]"
-                      @click="handleInspect(server, idx)"
-                    >
-                      <Scan class="mr-1 size-3.5" :class="{ 'animate-pulse': inspecting[serverKey(server)] }" />
-                      {{ inspecting[serverKey(server)] ? $t('actions.inspecting') : $t('actions.inspect') }}
-                    </Button>
                   </TableCell>
                 </TableRow>
 
@@ -205,7 +251,7 @@ function healthLabel(status: string): string {
                   v-if="expandedRows[serverKey(server)] && server.tools?.length > 0"
                   class="bg-muted/30"
                 >
-                  <TableCell :colspan="7" class="p-0">
+                  <TableCell :colspan="6" class="p-0">
                     <div class="px-6 py-3">
                       <p class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
                         {{ $t('mcpServers.tools') }} ({{ server.tools.length }})
@@ -225,7 +271,7 @@ function healthLabel(status: string): string {
                 </TableRow>
               </template>
             </template>
-            <TableEmpty v-else :colspan="7">
+            <TableEmpty v-else :colspan="6">
               <div class="py-8 text-center">
                 <p class="font-medium">
                   {{ connectedCount > 0 ? $t('mcpServers.noServersConfigured') : $t('mcpServers.noServersLoaded') }}
