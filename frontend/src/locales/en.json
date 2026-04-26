@@ -22,7 +22,9 @@
     "disconnect": "Disconnect",
     "connectClients": "Connect Clients",
     "searchServers": "Search servers...",
-    "toggleTheme": "Toggle theme"
+    "toggleTheme": "Toggle theme",
+    "inspect": "Inspect",
+    "inspecting": "Inspecting..."
   },
   "overview": {
     "title": "Overview",
@@ -63,6 +65,16 @@
     "commandUrl": "Command / URL",
     "status": "Status",
     "source": "Source",
+    "tools": "Tools",
+    "health": "Health",
+    "toolsCount": "{count} tools",
+    "noTools": "No tools exposed",
+    "toolName": "Tool",
+    "toolDescription": "Description",
+    "healthHealthy": "Healthy",
+    "healthDegraded": "Degraded",
+    "healthError": "Error",
+    "healthUnknown": "Not inspected",
     "noServersConfigured": "No MCP servers configured.",
     "noServersLoaded": "No MCP servers loaded yet.",
     "noServersConfiguredDesc": "Connected clients were scanned, but no MCP servers are configured.",

@@ -3,6 +3,14 @@
 // implementations live in internal/connector.
 package discovery
 
+// ToolInfo describes a single tool exposed by an MCP server,
+// populated via tools/list introspection.
+type ToolInfo struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	InputSchema any    `json:"inputSchema,omitempty"`
+}
+
 type MCPServer struct {
 	Name       string `json:"name"`
 	ClientID   string `json:"clientID"`
@@ -22,6 +30,14 @@ type MCPServer struct {
 	// "plugin:<plugin-id>" (a plugin bundled the server).
 	Origin     string `json:"origin"`
 	OriginPath string `json:"originPath"`
+
+	// Introspection results — populated after a successful MCP
+	// protocol handshake via IntrospectMCPServer.
+	Tools          []ToolInfo `json:"tools"`
+	ToolCount      int        `json:"toolCount"`
+	HealthStatus   string     `json:"healthStatus"`
+	HealthMessage  string     `json:"healthMessage"`
+	IntrospectedAt string     `json:"introspectedAt,omitempty"`
 }
 
 type SkillAsset struct {

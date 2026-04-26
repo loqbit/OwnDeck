@@ -37,3 +37,7 @@ export function GetConfig() {
 export function GetConnectedClientIDs() {
   return window['go']['main']['App']['GetConnectedClientIDs']();
 }
+
+export function IntrospectMCPServer(arg1) {
+  return window['go']['main']['App']['IntrospectMCPServer'](arg1);
+}

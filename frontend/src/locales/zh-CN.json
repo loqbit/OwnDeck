@@ -22,7 +22,9 @@
     "disconnect": "断开",
     "connectClients": "连接客户端",
     "searchServers": "搜索服务器...",
-    "toggleTheme": "切换主题"
+    "toggleTheme": "切换主题",
+    "inspect": "探查",
+    "inspecting": "探查中..."
   },
   "overview": {
     "title": "概览",
@@ -63,6 +65,16 @@
     "commandUrl": "命令 / URL",
     "status": "状态",
     "source": "来源",
+    "tools": "工具",
+    "health": "健康状态",
+    "toolsCount": "{count} 个工具",
+    "noTools": "未暴露工具",
+    "toolName": "工具",
+    "toolDescription": "描述",
+    "healthHealthy": "正常",
+    "healthDegraded": "降级",
+    "healthError": "错误",
+    "healthUnknown": "未探查",
     "noServersConfigured": "未配置 MCP 服务器。",
     "noServersLoaded": "尚未加载 MCP 服务器。",
     "noServersConfiguredDesc": "已扫描连接的客户端，但未发现 MCP 服务器配置。",

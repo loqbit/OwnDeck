@@ -63,3 +63,7 @@ func (a *App) DisconnectClient(clientID string) (config.AppConfig, error) {
 func (a *App) ConfigPath() string {
 	return a.connectionSvc.Path()
 }
+
+func (a *App) IntrospectMCPServer(server discovery.MCPServer) discovery.MCPServer {
+	return a.discoverySvc.IntrospectServer(a.ctx, server)
+}
