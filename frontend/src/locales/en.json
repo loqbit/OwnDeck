@@ -1,0 +1,105 @@
+{
+  "app": {
+    "name": "OwnDeck",
+    "tagline": "AI Control Plane",
+    "version": "v0.1.0-dev"
+  },
+  "nav": {
+    "navigation": "Navigation",
+    "configuration": "Configuration",
+    "overview": "Overview",
+    "clients": "Clients",
+    "mcpServers": "MCP Servers",
+    "skills": "Skills",
+    "agents": "Agents",
+    "profiles": "Profiles",
+    "settings": "Settings"
+  },
+  "actions": {
+    "refresh": "Refresh",
+    "scanning": "Scanning...",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "connectClients": "Connect Clients",
+    "searchServers": "Search servers...",
+    "toggleTheme": "Toggle theme"
+  },
+  "overview": {
+    "title": "Overview",
+    "description": "Quick health and inventory check",
+    "connectedClients": "Connected Clients",
+    "mcpServers": "MCP Servers",
+    "skillsDiscovered": "Skills Discovered",
+    "agents": "Agents",
+    "noClients": "No clients connected",
+    "noClientsDesc": "Connect a client to grant read-only discovery. OwnDeck will not write external config files.",
+    "recentServers": "Recent MCP Servers",
+    "skillsSummary": "Skills Summary",
+    "noServers": "No MCP servers configured yet.",
+    "noSkills": "No skills discovered yet.",
+    "viewAllServers": "View all {count} servers →",
+    "viewAllSkills": "View all {count} skills →"
+  },
+  "clients": {
+    "title": "Clients",
+    "description": "AI applications that consume MCP servers or call agents",
+    "readOnly": "Read-only",
+    "connected": "Connected",
+    "executable": "Executable",
+    "notFound": "Not found",
+    "config": "Config",
+    "noConfig": "No config file found",
+    "connectedMsg": "{id} connected in read-only mode.",
+    "disconnectedMsg": "{id} disconnected.",
+    "connectionFailed": "Connection failed",
+    "disconnectFailed": "Disconnect failed"
+  },
+  "mcpServers": {
+    "title": "MCP Servers",
+    "description": "Tool servers configured for connected clients",
+    "client": "Client",
+    "name": "Name",
+    "transport": "Transport",
+    "commandUrl": "Command / URL",
+    "status": "Status",
+    "source": "Source",
+    "noServersConfigured": "No MCP servers configured.",
+    "noServersLoaded": "No MCP servers loaded yet.",
+    "noServersConfiguredDesc": "Connected clients were scanned, but no MCP servers are configured.",
+    "noServersLoadedDesc": "Connect Codex, Claude Code, or Antigravity to start read-only discovery."
+  },
+  "skills": {
+    "title": "Skills",
+    "description": "Custom and third-party SKILL.md packages",
+    "user": "User",
+    "builtIn": "Built-in",
+    "all": "All",
+    "noDescription": "No description provided.",
+    "noUserSkills": "No user skills found.",
+    "noSkillsYet": "No skills found yet.",
+    "switchHint": "Switch to Built-in or All to inspect bundled skills.",
+    "noSkillsConfigured": "Connected clients have no skills configured.",
+    "connectHint": "Connect Codex or Antigravity to discover local SKILL.md packages."
+  },
+  "agents": {
+    "title": "Agents",
+    "description": "A2A agents and local assistants",
+    "noAgents": "No agents connected yet",
+    "noAgentsDesc": "Agents are separate from MCP servers: agents decide or collaborate, while MCP servers expose tools. Agent Cards will appear here once OwnDeck can read them."
+  },
+  "profiles": {
+    "title": "Profiles",
+    "description": "AI runtime configuration sets",
+    "noProfiles": "No profiles yet",
+    "noProfilesDesc": "Profiles let you define a set of MCP servers, skills, and agents, then export configurations to multiple AI clients at once. This feature is coming in a future update."
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "OwnDeck configuration",
+    "application": "Application",
+    "configPath": "Config Path",
+    "loading": "Loading...",
+    "version": "Version",
+    "language": "Language"
+  }
+}

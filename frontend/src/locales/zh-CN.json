@@ -1,0 +1,105 @@
+{
+  "app": {
+    "name": "OwnDeck",
+    "tagline": "AI 控制面板",
+    "version": "v0.1.0-dev"
+  },
+  "nav": {
+    "navigation": "导航",
+    "configuration": "配置",
+    "overview": "概览",
+    "clients": "客户端",
+    "mcpServers": "MCP 服务器",
+    "skills": "技能包",
+    "agents": "智能体",
+    "profiles": "配置方案",
+    "settings": "设置"
+  },
+  "actions": {
+    "refresh": "刷新",
+    "scanning": "扫描中...",
+    "connect": "连接",
+    "disconnect": "断开",
+    "connectClients": "连接客户端",
+    "searchServers": "搜索服务器...",
+    "toggleTheme": "切换主题"
+  },
+  "overview": {
+    "title": "概览",
+    "description": "快速健康和库存检查",
+    "connectedClients": "已连接客户端",
+    "mcpServers": "MCP 服务器",
+    "skillsDiscovered": "已发现技能包",
+    "agents": "智能体",
+    "noClients": "暂无已连接的客户端",
+    "noClientsDesc": "连接客户端以授权只读发现。OwnDeck 不会写入外部配置文件。",
+    "recentServers": "最近的 MCP 服务器",
+    "skillsSummary": "技能包概要",
+    "noServers": "尚未配置 MCP 服务器。",
+    "noSkills": "尚未发现技能包。",
+    "viewAllServers": "查看全部 {count} 个服务器 →",
+    "viewAllSkills": "查看全部 {count} 个技能包 →"
+  },
+  "clients": {
+    "title": "客户端",
+    "description": "使用 MCP 服务器或调用智能体的 AI 应用",
+    "readOnly": "只读",
+    "connected": "已连接",
+    "executable": "可执行文件",
+    "notFound": "未找到",
+    "config": "配置文件",
+    "noConfig": "未找到配置文件",
+    "connectedMsg": "{id} 已以只读模式连接。",
+    "disconnectedMsg": "{id} 已断开。",
+    "connectionFailed": "连接失败",
+    "disconnectFailed": "断开失败"
+  },
+  "mcpServers": {
+    "title": "MCP 服务器",
+    "description": "已连接客户端配置的工具服务器",
+    "client": "客户端",
+    "name": "名称",
+    "transport": "传输协议",
+    "commandUrl": "命令 / URL",
+    "status": "状态",
+    "source": "来源",
+    "noServersConfigured": "未配置 MCP 服务器。",
+    "noServersLoaded": "尚未加载 MCP 服务器。",
+    "noServersConfiguredDesc": "已扫描连接的客户端，但未发现 MCP 服务器配置。",
+    "noServersLoadedDesc": "连接 Codex、Claude Code 或 Antigravity 以开始只读发现。"
+  },
+  "skills": {
+    "title": "技能包",
+    "description": "自定义和第三方 SKILL.md 包",
+    "user": "用户",
+    "builtIn": "内置",
+    "all": "全部",
+    "noDescription": "暂无描述。",
+    "noUserSkills": "未找到用户技能包。",
+    "noSkillsYet": "尚未发现技能包。",
+    "switchHint": "切换到「内置」或「全部」查看系统技能包。",
+    "noSkillsConfigured": "已连接客户端未配置技能包。",
+    "connectHint": "连接 Codex 或 Antigravity 以发现本地 SKILL.md 包。"
+  },
+  "agents": {
+    "title": "智能体",
+    "description": "A2A 智能体和本地助手",
+    "noAgents": "暂无已连接的智能体",
+    "noAgentsDesc": "智能体与 MCP 服务器不同：智能体负责决策和协作，MCP 服务器负责暴露工具。当 OwnDeck 能够读取 Agent Card 后，智能体将显示在此处。"
+  },
+  "profiles": {
+    "title": "配置方案",
+    "description": "AI 运行时配置集",
+    "noProfiles": "暂无配置方案",
+    "noProfilesDesc": "配置方案允许您定义一组 MCP 服务器、技能包和智能体，然后一次性将配置导出到多个 AI 客户端。此功能将在未来更新中推出。"
+  },
+  "settings": {
+    "title": "设置",
+    "description": "OwnDeck 配置",
+    "application": "应用程序",
+    "configPath": "配置路径",
+    "loading": "加载中...",
+    "version": "版本",
+    "language": "语言"
+  }
+}
