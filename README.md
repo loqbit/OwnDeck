@@ -1,85 +1,99 @@
-<div align="center">
-  <img src="build/appicon.png" width="128" alt="OwnDeck Logo">
-  <h1>OwnDeck</h1>
-  <p><b>The Local-First AI Agent Control Plane</b></p>
+<h1 align="center">OwnDeck</h1>
 
-  <a href="https://wails.io/"><img src="https://img.shields.io/badge/Wails-v2-blue?style=for-the-badge&logo=go" alt="Wails"></a>
-  <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue.js-3.0-4FC08D?style=for-the-badge&logo=vue.js" alt="Vue 3"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Ready-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript"></a>
-  <br><br>
+<p align="center">
+  <strong>The Local-First AI Agent Control Plane</strong>
+</p>
 
-  [English](README.md) | [简体中文](README_zh.md)
-</div>
+<p align="center">
+  <a href="https://wails.io/"><img src="https://img.shields.io/badge/Wails-v2-blue?style=flat-square&logo=go" alt="Wails"></a>
+  <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue.js-3.0-4FC08D?style=flat-square&logo=vuedotjs" alt="Vue 3"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Ready-3178C6?style=flat-square&logo=typescript" alt="TypeScript"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square" alt="License"></a>
+</p>
 
-<hr>
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#contributing">Contributing</a>
+</p>
 
-OwnDeck is the **only local-first console** that actually speaks the MCP (Model Context Protocol). It manages MCP servers (down to the individual tool) and AI agents in one place, serving as your ultimate command center for local AI development.
+<p align="center">
+  <em><a href="README.md">English</a> • <a href="README_zh.md">简体中文</a></em>
+</p>
 
-Unlike existing tools that merely synchronize JSON config files, OwnDeck **introspects** each server, understands the tools it exposes, and treats Skills and Agents as first-class assets.
+---
 
-## ✨ Features
+OwnDeck is the ultimate local-first console for the Model Context Protocol (MCP). It manages your MCP servers, discovers AI tools, and centralizes your local agent ecosystem in one unified dashboard.
 
-- **🌐 Dynamic Agent Discovery**: Automatically scans your filesystem to detect installed AI agents (Claude, Codex, Gemini CLI, Cursor) and their extensions.
-- **🔌 Protocol-Level Introspection**: Directly communicates with MCP-over-stdio servers to live-query tools, prompts, and resources. 
-- **📖 Direct Config Reading**: No fragile CLI subprocess scraping. OwnDeck reads configurations natively (JSON/TOML) with zero external dependencies.
-- **🛠️ Centralized Control**: View all your MCP servers, their connection health, and available tools across your entire machine in one beautiful dashboard.
-- **⚡ Auto-Refresh UI**: Built with a reactive, modern stack (Vue 3 + shadcn-vue + Wails) featuring silent background polling and smooth state management.
-- **🌍 Internationalization**: First-class English and Simplified Chinese support out of the box.
+While existing tools merely synchronize static JSON configurations, OwnDeck introduces **protocol-level introspection**. It actively communicates with your servers over `stdio` to map out exact tool capabilities, prompts, and resources.
 
-## 🚀 Getting Started
+## Features
+
+- **Dynamic Agent Discovery**: Automatically scans your filesystem to detect installed AI agents (Claude, Codex, Gemini CLI, Cursor) and their extensions.
+- **Protocol-Level Introspection**: Directly communicates with MCP-over-stdio servers to live-query tools, prompts, and resources. 
+- **Direct Config Parsing**: No fragile CLI subprocess scraping. OwnDeck reads configurations natively (JSON/TOML) with zero external dependencies.
+- **Centralized Dashboard**: View all your MCP servers, their connection health, and available tools across your entire machine in a modern interface.
+- **Auto-Refresh Architecture**: Built with a reactive stack (Vue 3 + Wails) featuring silent background polling and smooth state management.
+
+## Getting Started
 
 ### Prerequisites
-- Go 1.21+
-- Node.js & npm
-- [Wails v2](https://wails.io/)
+
+Ensure you have the following installed on your system:
+- [Go](https://golang.org/doc/install) 1.21 or higher
+- [Node.js](https://nodejs.org/) & npm
+- [Wails v2](https://wails.io/docs/gettingstarted/installation)
 
 ### Installation
 
-1. **Install Wails CLI**:
+1. Install the Wails CLI and verify your environment:
    ```bash
    go install github.com/wailsapp/wails/v2/cmd/wails@latest
    wails doctor
    ```
 
-2. **Clone the repository**:
+2. Clone the repository:
    ```bash
    git clone https://github.com/loqbit/OwnDeck.git
    cd OwnDeck
    ```
 
-3. **Run in Development Mode**:
+3. Start the development server:
    ```bash
    wails dev
    ```
 
-4. **Build for Production**:
+4. Build for production:
    ```bash
    wails build
    ```
 
-## 🏗️ Architecture
+## Architecture
 
-OwnDeck uses a layered architecture designed for extensibility:
+OwnDeck is built with extensibility in mind, separating presentation from discovery logic.
 
 - **Frontend**: Vue 3 + TypeScript + Tailwind CSS + shadcn-vue
 - **Backend**: Go (Wails)
-  - `connector`: Pluggable adapters for different AI agents (Claude, Codex, etc.)
-  - `discovery`: Dynamic filesystem scanners and MCP config parsers
+  - `connector`: Pluggable adapters for different AI agents
+  - `discovery`: Dynamic filesystem scanners and configuration parsers
   - `mcpclient`: Minimal MCP-over-stdio client for live server introspection
   - `service`: Business logic and Wails bindings
   - `repository`: Configuration persistence and storage
 
-## 🗺️ Roadmap
+## Roadmap
 
-- [x] **Stage 1**: Direct config-file reading and Skill discovery
-- [x] **Stage 2**: Native MCP-over-stdio client for live tool introspection
-- [x] **Stage 3 (Phase 1)**: Dynamic Agent Discovery and generic connectors
-- [ ] **Stage 3 (Phase 2)**: Agent detail configuration editor and Settings UI
-- [ ] **Stage 4**: SQLite-backed Profile model (group MCP servers into functional profiles)
-- [ ] **Stage 5**: Configuration Compilation + Exporter (write back to client configs)
+- [x] Direct config-file reading and Skill discovery
+- [x] Native MCP-over-stdio client for live tool introspection
+- [x] Dynamic Agent Discovery and generic connectors
+- [ ] Agent detail configuration editor and Settings UI
+- [ ] SQLite-backed Profile model for context-aware server grouping
+- [ ] Configuration Exporter (sync OwnDeck state back to agent configs)
 
-## 🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Contributing
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+We welcome contributions from the community. If you'd like to improve OwnDeck, please feel free to submit a Pull Request or open an Issue to discuss proposed changes.
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
